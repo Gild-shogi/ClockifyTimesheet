@@ -30,7 +30,7 @@ ClockifyのAPIを使用して月次勤務表を自動生成するTypeScriptア�
 
 ```bash
 # 依存関係のインストール
-npm install
+pnpm install
 
 # 環境変数ファイルのコピー
 cp .env.example .env
@@ -48,16 +48,16 @@ cp .env.example .env
 CLOCKIFY_API_KEY=your_api_key_here
 
 # 2. ワークスペース一覧を表示
-npm run list-workspaces
+pnpm list-workspaces
 ```
 
 #### ユーザーIDの取得
 ```bash
 # 現在のユーザー情報を表示
-npm run get-user-info
+pnpm get-user-info
 
 # または、メールアドレスで検索
-npm run get-user-info your.email@example.com
+pnpm get-user-info your.email@example.com
 ```
 
 ### 3. 環境変数の設定
@@ -85,10 +85,10 @@ EXCEL_FONT_NAME=Meiryo UI
 
 ```bash
 # 当月の勤務表を生成
-npm start
+pnpm start
 
 # または
-npm run generate
+pnpm generate
 ```
 
 ## 🎨 カスタマイズオプション
@@ -133,39 +133,17 @@ src/
 └── index.ts                  # エントリーポイント
 ```
 
-### アーキテクチャの特徴
-
-- **疎結合設計**: インターフェースベースの依存性注入
-- **単一責任**: 各サービスが明確な責任を持つ
-- **拡張性**: 新しいデータソースや出力形式に対応可能
-- **テスタビリティ**: モックを使った単体テストが容易
-
-### カスタムサービスの作成例
-
-```typescript
-// 新しい出力形式の追加
-class PDFTimesheetGenerator implements ITimesheetGenerator {
-  async generateTimesheet(workDays: WorkDay[], year: number, month: number): Promise<string> {
-    // PDF生成ロジック
-  }
-}
-
-// 使用方法
-const container = new Container();
-const configService = container.getConfigurationService();
-const customGenerator = new PDFTimesheetGenerator(configService);
-```
 
 ### 利用可能なスクリプト
 
 ```bash
-npm start              # 勤務表生成
-npm run generate       # 勤務表生成
-npm run build          # TypeScriptコンパイル
-npm run lint           # コード品質チェック
-npm run format         # コード整形
-npm run list-workspaces # ワークスペース一覧表示
-npm run get-user-info  # ユーザー情報取得
+pnpm start              # 勤務表生成
+pnpm generate           # 勤務表生成
+pnpm build              # TypeScriptコンパイル
+pnpm lint               # コード品質チェック
+pnpm format             # コード整形
+pnpm list-workspaces    # ワークスペース一覧表示
+pnpm get-user-info      # ユーザー情報取得
 ```
 
 ## 🔧 トラブルシューティング
@@ -176,7 +154,7 @@ npm run get-user-info  # ユーザー情報取得
 ```
 Error: Clockify API request failed: 401
 ```
-**解決方法**: 
+**解決方法**:
 - APIキーが正しく設定されているか確認
 - [Clockify設定画面](https://clockify.me/user/settings)で新しいAPIキーを生成
 
@@ -185,7 +163,7 @@ Error: Clockify API request failed: 401
 Error: Failed to fetch projects: 403
 ```
 **解決方法**:
-- `npm run list-workspaces`でワークスペースIDを確認
+- `pnpm list-workspaces`でワークスペースIDを確認
 - アクセス権限があるワークスペースIDを使用
 
 #### 3. 時間データなし
