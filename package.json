@@ -1,0 +1,30 @@
+{
+  "name": "clockify-timesheet-generator",
+  "version": "1.0.0",
+  "description": "Clockify APIを使用した勤務表自動生成ツール",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "generate": "ts-node src/index.ts",
+    "build": "tsc",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "list-workspaces": "ts-node src/tools/listWorkspaces.ts",
+    "get-user-info": "ts-node src/tools/getUserInfo.ts"
+  },
+  "dependencies": {
+    "axios": "^1.10.0",
+    "exceljs": "^4.4.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.1",
+    "typescript": "^5.0.0",
+    "@biomejs/biome": "^1.9.4",
+    "ts-node": "^10.9.0"
+  },
+  "keywords": ["clockify", "timesheet", "excel", "api"],
+  "author": "Gild-shogi",
+  "license": "MIT"
+}
