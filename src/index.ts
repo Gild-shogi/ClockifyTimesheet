@@ -1,4 +1,8 @@
+import { config } from 'dotenv';
 import { Container } from './container';
+
+// 環境変数を読み込み
+config();
 
 async function main() {
   const container = new Container();
