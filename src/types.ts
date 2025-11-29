@@ -35,6 +35,8 @@ export interface WorkSession {
   endTime: string;
   workHours: number;
   projectName: string;
+  /** 作業内容の説明 */
+  description?: string;
 }
 
 export interface WorkDay {
@@ -63,6 +65,8 @@ export interface ExcelConfig {
     style: BorderStyle;
     color: string;
   };
+  /** 作業内容（Description）列を表示するか */
+  showDescription?: boolean;
 }
 
 export interface AppConfig {

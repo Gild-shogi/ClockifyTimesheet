@@ -31,6 +31,7 @@ export interface IConfigurationService {
       style: 'thin' | 'medium' | 'thick';
       color: string;
     };
+    showDescription?: boolean;
   };
 }
 

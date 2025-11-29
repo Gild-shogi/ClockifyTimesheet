@@ -49,6 +49,7 @@ export function loadAppSettings(): AppSettings {
         fontSize: config.excel.fontSize,
         fontName: config.excel.fontName,
         dateGroupBorder: config.excel.dateGroupBorder || defaultExcelSettings.dateGroupBorder,
+        showDescription: config.excel.showDescription ?? false,
       },
     };
   } catch {

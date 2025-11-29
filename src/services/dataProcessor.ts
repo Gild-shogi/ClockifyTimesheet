@@ -51,6 +51,7 @@ export class TimeEntryDataProcessor implements IDataProcessor {
 
     const startDateStr = this.formatDateString(startDate);
     const endDateStr = this.formatDateString(endDate);
+    const description = entry.description || '';
 
     // 同日の場合
     if (startDateStr === endDateStr) {
@@ -61,6 +62,7 @@ export class TimeEntryDataProcessor implements IDataProcessor {
           endTime: this.formatTime(endDate),
           workHours: (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60),
           projectName,
+          description,
         },
       ];
     }
@@ -79,6 +81,7 @@ export class TimeEntryDataProcessor implements IDataProcessor {
       endTime: '24:00',
       workHours: (nextDayStart.getTime() - startDate.getTime()) / (1000 * 60 * 60),
       projectName,
+      description,
     });
 
     // 終了日：0:00〜終了時刻
@@ -91,6 +94,7 @@ export class TimeEntryDataProcessor implements IDataProcessor {
       endTime: this.formatTime(endDate),
       workHours: (endDate.getTime() - endDayStart.getTime()) / (1000 * 60 * 60),
       projectName,
+      description,
     });
 
     return sessions;

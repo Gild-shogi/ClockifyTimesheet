@@ -49,6 +49,12 @@ const config: AppConfig = {
     // Windows: 'Meiryo UI', 'Yu Gothic UI', 'MS Gothic'
     // macOS: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN'
     fontName: 'Meiryo UI',
+
+    // ----------------------------------------
+    // 表示オプション
+    // ----------------------------------------
+    // 作業内容（Description）列を表示するか
+    showDescription: false,
   },
 };
 

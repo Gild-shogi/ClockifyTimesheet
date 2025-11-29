@@ -7,6 +7,7 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
 
   async generateTimesheet(workDays: WorkDay[], year: number, month: number): Promise<string> {
     const settings = this.configService.getExcelSettings();
+    const showDescription = settings.showDescription ?? false;
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(`${year}年${month}月勤務表`);
 
@@ -15,11 +16,13 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
       '日付',
       '曜日',
       'プロジェクト',
+      ...(showDescription ? ['作業内容'] : []),
       '出勤時刻',
       '退勤時刻',
       '労働時間',
       '労働時間(h)',
     ];
+    const colCount = headers.length;
     worksheet.addRow(headers);
 
     let totalMonthlyHours = 0;
@@ -38,8 +41,8 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
 
         // 最初のセッションの場合は日付と曜日を表示
         if (index === 0) {
-          const [, month, day] = session.date.split('-');
-          row.getCell(1).value = `${month}/${day}`;
+          const [, m, d] = session.date.split('-');
+          row.getCell(1).value = `${m}/${d}`;
           row.getCell(2).value = workDay.dayOfWeek;
         } else {
           // 2行目以降は日付と曜日は空白
@@ -47,11 +50,16 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
           row.getCell(2).value = '';
         }
 
-        row.getCell(3).value = session.projectName;
-        row.getCell(4).value = session.startTime;
-        row.getCell(5).value = session.endTime;
-        row.getCell(6).value = this.formatWorkHoursAsTime(session.workHours);
-        row.getCell(7).value = session.workHours.toFixed(2);
+        // 列番号はshowDescriptionによって変わる
+        let col = 3;
+        row.getCell(col++).value = session.projectName;
+        if (showDescription) {
+          row.getCell(col++).value = session.description || '';
+        }
+        row.getCell(col++).value = session.startTime;
+        row.getCell(col++).value = session.endTime;
+        row.getCell(col++).value = this.formatWorkHoursAsTime(session.workHours);
+        row.getCell(col++).value = session.workHours.toFixed(2);
 
         totalMonthlyHours += session.workHours;
         currentRow++;
@@ -68,13 +76,13 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
     // 合計行を追加
     const totalRow = worksheet.getRow(currentRow);
     totalRow.getCell(1).value = '合計';
-    totalRow.getCell(6).value = this.formatWorkHoursAsTime(totalMonthlyHours);
-    totalRow.getCell(7).value = totalMonthlyHours.toFixed(2);
+    totalRow.getCell(colCount - 1).value = this.formatWorkHoursAsTime(totalMonthlyHours);
+    totalRow.getCell(colCount).value = totalMonthlyHours.toFixed(2);
 
     const lastRow = currentRow;
 
     // スタイリング適用
-    this.applyStyles(worksheet, settings, lastRow, dateGroupRanges);
+    this.applyStyles(worksheet, settings, lastRow, dateGroupRanges, colCount, showDescription);
 
     // ファイル保存
     const filename = `勤務表_${year}年${month}月.xlsx`;
@@ -91,21 +99,27 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
     worksheet: ExcelJS.Worksheet,
     settings: ReturnType<IConfigurationService['getExcelSettings']>,
     lastRow: number,
-    dateGroupRanges: { start: number; end: number; date: string }[]
+    dateGroupRanges: { start: number; end: number; date: string }[],
+    colCount: number,
+    showDescription: boolean
   ): void {
     // 列幅設定
-    worksheet.getColumn(1).width = 10; // 日付
-    worksheet.getColumn(2).width = 6; // 曜日
-    worksheet.getColumn(3).width = 20; // プロジェクト
-    worksheet.getColumn(4).width = 12; // 出勤時刻
-    worksheet.getColumn(5).width = 12; // 退勤時刻
-    worksheet.getColumn(6).width = 12; // 労働時間(h:min)
-    worksheet.getColumn(7).width = 12; // 労働時間(decimal)
+    let col = 1;
+    worksheet.getColumn(col++).width = 10; // 日付
+    worksheet.getColumn(col++).width = 6; // 曜日
+    worksheet.getColumn(col++).width = 20; // プロジェクト
+    if (showDescription) {
+      worksheet.getColumn(col++).width = 30; // 作業内容
+    }
+    worksheet.getColumn(col++).width = 12; // 出勤時刻
+    worksheet.getColumn(col++).width = 12; // 退勤時刻
+    worksheet.getColumn(col++).width = 12; // 労働時間(h:min)
+    worksheet.getColumn(col++).width = 12; // 労働時間(decimal)
 
     // 全体のフォント設定
     for (let row = 1; row <= lastRow; row++) {
-      for (let col = 1; col <= 7; col++) {
-        const cell = worksheet.getCell(row, col);
+      for (let c = 1; c <= colCount; c++) {
+        const cell = worksheet.getCell(row, c);
         cell.font = {
           name: settings.fontName,
           size: settings.fontSize,
@@ -115,8 +129,8 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
     }
 
     // ヘッダー行のスタイル（表の範囲のみ）
-    for (let col = 1; col <= 7; col++) {
-      const headerCell = worksheet.getCell(1, col);
+    for (let c = 1; c <= colCount; c++) {
+      const headerCell = worksheet.getCell(1, c);
       headerCell.font = {
         name: settings.fontName,
         size: settings.fontSize,
@@ -143,8 +157,8 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
       const isAlternate = index % 2 === 1;
 
       for (let row = group.start; row <= group.end; row++) {
-        for (let col = 1; col <= 7; col++) {
-          const cell = worksheet.getCell(row, col);
+        for (let c = 1; c <= colCount; c++) {
+          const cell = worksheet.getCell(row, c);
 
           // 交互背景色
           if (isAlternate && settings.alternateRowColor) {
@@ -181,9 +195,9 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
     });
 
     // ヘッダー行と合計行の罫線
-    for (let col = 1; col <= 7; col++) {
-      const headerCell = worksheet.getCell(1, col);
-      const totalCell = worksheet.getCell(lastRow, col);
+    for (let c = 1; c <= colCount; c++) {
+      const headerCell = worksheet.getCell(1, c);
+      const totalCell = worksheet.getCell(lastRow, c);
 
       headerCell.border = {
         top: {
