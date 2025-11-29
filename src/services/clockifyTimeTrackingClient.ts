@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
-import { ITimeTrackingClient, IConfigurationService } from '../interfaces';
-import { TimeEntry, Project } from '../types';
+import { IConfigurationService, ITimeTrackingClient } from '../interfaces';
+import { Project, TimeEntry } from '../types';
 
 export class ClockifyTimeTrackingClient implements ITimeTrackingClient {
   private httpClient: AxiosInstance;

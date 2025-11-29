@@ -1,4 +1,4 @@
-import { TimeEntry, Project, WorkDay } from './types';
+import { Project, TimeEntry, WorkDay } from './types';
 
 export interface ITimeTrackingClient {
   getTimeEntries(startDate: string, endDate: string): Promise<TimeEntry[]>;
@@ -34,10 +34,12 @@ export interface IConfigurationService {
     showDescription?: boolean;
   };
   getOutputFormat(): 'excel' | 'csv' | 'googleSheets';
-  getGoogleSheetsConfig(): {
-    spreadsheetId: string;
-    credentialsPath: string;
-  } | undefined;
+  getGoogleSheetsConfig():
+    | {
+        spreadsheetId: string;
+        credentialsPath: string;
+      }
+    | undefined;
 }
 
 export interface ITimesheetService {

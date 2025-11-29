@@ -1,6 +1,6 @@
 import * as ExcelJS from 'exceljs';
-import { ITimesheetGenerator, IConfigurationService } from '../interfaces';
-import { WorkDay, TimesheetRow } from '../types';
+import { IConfigurationService, ITimesheetGenerator } from '../interfaces';
+import { TimesheetRow, WorkDay } from '../types';
 import { TimesheetTableBuilder } from './timesheetTableBuilder';
 
 export class ExcelTimesheetGenerator implements ITimesheetGenerator {
@@ -8,11 +8,7 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
 
   constructor(private configService: IConfigurationService) {}
 
-  async generateTimesheet(
-    workDays: WorkDay[],
-    year: number,
-    month: number
-  ): Promise<string> {
+  async generateTimesheet(workDays: WorkDay[], year: number, month: number): Promise<string> {
     const settings = this.configService.getExcelSettings();
     const showDescription = settings.showDescription ?? false;
 

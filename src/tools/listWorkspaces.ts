@@ -84,7 +84,7 @@ async function listWorkspaces(): Promise<void> {
 
     console.log(`${workspaces.length}個のワークスペースが見つかりました:\n`);
     console.log('━'.repeat(80));
-    console.log('ID'.padEnd(25) + ' | ' + 'ワークスペース名');
+    console.log(`${'ID'.padEnd(25)} | ワークスペース名`);
     console.log('━'.repeat(80));
 
     workspaces.forEach((workspace, index) => {
@@ -92,17 +92,16 @@ async function listWorkspaces(): Promise<void> {
     });
 
     console.log('━'.repeat(80));
-    console.log(`\n設定方法:`);
-    console.log(`CLOCKIFY_WORKSPACE_ID=<上記のIDをコピー>`);
-    console.log(`\n例:`);
+    console.log('\n設定方法:');
+    console.log('CLOCKIFY_WORKSPACE_ID=<上記のIDをコピー>');
+    console.log('\n例:');
     console.log(`CLOCKIFY_WORKSPACE_ID=${workspaces[0].id}`);
-
   } catch (error: any) {
     console.error('エラーが発生しました:');
     if (error.response) {
       console.error(`ステータス: ${error.response.status}`);
       console.error(`メッセージ: ${error.response.data?.message || error.response.statusText}`);
-      
+
       if (error.response.status === 401) {
         console.error('\nAPIキーが無効です。正しいAPIキーを設定してください。');
         console.error('APIキーの取得方法: https://clockify.me/user/settings');

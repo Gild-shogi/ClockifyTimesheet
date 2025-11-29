@@ -1,9 +1,9 @@
 import {
-  ITimesheetService,
+  IConfigurationService,
+  IDataProcessor,
   ITimeTrackingClient,
   ITimesheetGenerator,
-  IDataProcessor,
-  IConfigurationService,
+  ITimesheetService,
 } from '../interfaces';
 
 export class TimesheetService implements ITimesheetService {

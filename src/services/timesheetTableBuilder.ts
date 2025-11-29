@@ -1,4 +1,4 @@
-import { WorkDay, TimesheetTable, TimesheetRow } from '../types';
+import { TimesheetRow, TimesheetTable, WorkDay } from '../types';
 
 export interface TableBuilderOptions {
   showDescription: boolean;
@@ -90,20 +90,11 @@ export class TimesheetTableBuilder {
    * テーブル行を配列形式に変換（CSV等で使用）
    */
   rowToArray(row: TimesheetRow, options: TableBuilderOptions): string[] {
-    const values = [
-      row.date,
-      row.dayOfWeek,
-      row.projectName,
-    ];
+    const values = [row.date, row.dayOfWeek, row.projectName];
     if (options.showDescription) {
       values.push(row.description);
     }
-    values.push(
-      row.startTime,
-      row.endTime,
-      row.workHoursFormatted,
-      row.workHoursDecimal
-    );
+    values.push(row.startTime, row.endTime, row.workHoursFormatted, row.workHoursDecimal);
     return values;
   }
 }

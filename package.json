@@ -27,12 +27,7 @@
     "ts-node": "^10.9.0",
     "typescript": "^5.0.0"
   },
-  "keywords": [
-    "clockify",
-    "timesheet",
-    "excel",
-    "api"
-  ],
+  "keywords": ["clockify", "timesheet", "excel", "api"],
   "author": "Gild-shogi",
   "license": "MIT"
 }

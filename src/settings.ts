@@ -1,4 +1,4 @@
-import { AppConfig, ExcelConfig, BorderStyle, GoogleSheetsConfig } from './types';
+import { AppConfig, BorderStyle, ExcelConfig, GoogleSheetsConfig } from './types';
 
 // 後方互換性のための型エイリアス
 export type ExcelSettings = ExcelConfig & {

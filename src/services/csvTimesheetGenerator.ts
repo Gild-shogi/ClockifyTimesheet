@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import { ITimesheetGenerator, IConfigurationService } from '../interfaces';
+import * as fs from 'node:fs';
+import { IConfigurationService, ITimesheetGenerator } from '../interfaces';
 import { WorkDay } from '../types';
 import { TimesheetTableBuilder } from './timesheetTableBuilder';
 
@@ -8,11 +8,7 @@ export class CsvTimesheetGenerator implements ITimesheetGenerator {
 
   constructor(private configService: IConfigurationService) {}
 
-  async generateTimesheet(
-    workDays: WorkDay[],
-    year: number,
-    month: number
-  ): Promise<string> {
+  async generateTimesheet(workDays: WorkDay[], year: number, month: number): Promise<string> {
     const settings = this.configService.getExcelSettings();
     const showDescription = settings.showDescription ?? false;
 

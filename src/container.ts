@@ -1,17 +1,17 @@
-import { ConfigurationService } from './services/configurationService';
-import { ClockifyTimeTrackingClient } from './services/clockifyTimeTrackingClient';
-import { TimeEntryDataProcessor } from './services/dataProcessor';
-import { ExcelTimesheetGenerator } from './services/excelTimesheetGenerator';
-import { CsvTimesheetGenerator } from './services/csvTimesheetGenerator';
-import { GoogleSheetsTimesheetGenerator } from './services/googleSheetsTimesheetGenerator';
-import { TimesheetService } from './services/timesheetService';
 import {
   IConfigurationService,
-  ITimeTrackingClient,
   IDataProcessor,
+  ITimeTrackingClient,
   ITimesheetGenerator,
   ITimesheetService,
 } from './interfaces';
+import { ClockifyTimeTrackingClient } from './services/clockifyTimeTrackingClient';
+import { ConfigurationService } from './services/configurationService';
+import { CsvTimesheetGenerator } from './services/csvTimesheetGenerator';
+import { TimeEntryDataProcessor } from './services/dataProcessor';
+import { ExcelTimesheetGenerator } from './services/excelTimesheetGenerator';
+import { GoogleSheetsTimesheetGenerator } from './services/googleSheetsTimesheetGenerator';
+import { TimesheetService } from './services/timesheetService';
 
 /**
  * 依存性注入コンテナ
@@ -49,11 +49,12 @@ export class Container {
       case 'googleSheets': {
         const sheetsConfig = this.configurationService.getGoogleSheetsConfig();
         if (!sheetsConfig) {
-          throw new Error('Google Sheets設定が見つかりません。clockify.config.tsにgoogleSheets設定を追加してください。');
+          throw new Error(
+            'Google Sheets設定が見つかりません。clockify.config.tsにgoogleSheets設定を追加してください。'
+          );
         }
         return new GoogleSheetsTimesheetGenerator(this.configurationService, sheetsConfig);
       }
-      case 'excel':
       default:
         return new ExcelTimesheetGenerator(this.configurationService);
     }

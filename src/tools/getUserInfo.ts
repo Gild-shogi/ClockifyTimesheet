@@ -84,7 +84,7 @@ async function getCurrentUserInfo(): Promise<User> {
     if (error.response) {
       console.error(`ステータス: ${error.response.status}`);
       console.error(`メッセージ: ${error.response.data?.message || error.response.statusText}`);
-      
+
       if (error.response.status === 401) {
         console.error('\nAPIキーが無効です。正しいAPIキーを設定してください。');
         console.error('APIキーの取得方法: https://clockify.me/user/settings');
@@ -104,19 +104,22 @@ async function searchUserByEmail(workspaceId: string, email: string): Promise<Us
   }
 
   try {
-    const response = await axios.get(`https://api.clockify.me/api/v1/workspaces/${workspaceId}/users`, {
-      headers: {
-        'X-Api-Key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      params: {
-        email: email,
-        'page-size': 1000
+    const response = await axios.get(
+      `https://api.clockify.me/api/v1/workspaces/${workspaceId}/users`,
+      {
+        headers: {
+          'X-Api-Key': apiKey,
+          'Content-Type': 'application/json',
+        },
+        params: {
+          email: email,
+          'page-size': 1000,
+        },
       }
-    });
+    );
 
     const users: User[] = response.data;
-    return users.find(user => user.email.toLowerCase() === email.toLowerCase()) || null;
+    return users.find((user) => user.email.toLowerCase() === email.toLowerCase()) || null;
   } catch (error) {
     console.error('ユーザー検索に失敗しました:', error);
     return null;
@@ -125,12 +128,12 @@ async function searchUserByEmail(workspaceId: string, email: string): Promise<Us
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  
+
   if (args.length > 0) {
     // 引数がある場合はメールアドレス検索
     const email = args[0];
     const workspaceId = process.env.CLOCKIFY_WORKSPACE_ID;
-    
+
     if (!workspaceId) {
       console.error('エラー: CLOCKIFY_WORKSPACE_ID環境変数が設定されていません。');
       console.error('先にワークスペースIDを設定するか、listWorkspaces.tsを実行してください。');
@@ -138,9 +141,9 @@ async function main(): Promise<void> {
     }
 
     console.log(`メールアドレス "${email}" でユーザーを検索中...\n`);
-    
+
     const user = await searchUserByEmail(workspaceId, email);
-    
+
     if (user) {
       console.log('ユーザーが見つかりました:');
       console.log('━'.repeat(50));
@@ -158,9 +161,9 @@ async function main(): Promise<void> {
   } else {
     // 引数がない場合は現在のユーザー情報を表示
     console.log('現在のユーザー情報を取得中...\n');
-    
+
     const user = await getCurrentUserInfo();
-    
+
     console.log('現在のユーザー情報:');
     console.log('━'.repeat(50));
     console.log(`ユーザーID: ${user.id}`);

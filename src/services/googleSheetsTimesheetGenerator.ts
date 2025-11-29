@@ -1,5 +1,5 @@
 import { google } from 'googleapis';
-import { ITimesheetGenerator, IConfigurationService } from '../interfaces';
+import { IConfigurationService, ITimesheetGenerator } from '../interfaces';
 import { WorkDay } from '../types';
 import { TimesheetTableBuilder } from './timesheetTableBuilder';
 
@@ -18,11 +18,7 @@ export class GoogleSheetsTimesheetGenerator implements ITimesheetGenerator {
     private sheetsConfig: GoogleSheetsConfig
   ) {}
 
-  async generateTimesheet(
-    workDays: WorkDay[],
-    year: number,
-    month: number
-  ): Promise<string> {
+  async generateTimesheet(workDays: WorkDay[], year: number, month: number): Promise<string> {
     const settings = this.configService.getExcelSettings();
     const showDescription = settings.showDescription ?? false;
 
@@ -45,9 +41,7 @@ export class GoogleSheetsTimesheetGenerator implements ITimesheetGenerator {
       spreadsheetId: this.sheetsConfig.spreadsheetId,
     });
 
-    const existingSheet = spreadsheet.data.sheets?.find(
-      (s) => s.properties?.title === sheetTitle
-    );
+    const existingSheet = spreadsheet.data.sheets?.find((s) => s.properties?.title === sheetTitle);
 
     if (existingSheet) {
       // 既存シートをクリア
@@ -116,9 +110,7 @@ export class GoogleSheetsTimesheetGenerator implements ITimesheetGenerator {
   ): Promise<void> {
     // シートIDを取得
     const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId });
-    const sheet = spreadsheet.data.sheets?.find(
-      (s) => s.properties?.title === sheetTitle
-    );
+    const sheet = spreadsheet.data.sheets?.find((s) => s.properties?.title === sheetTitle);
     const sheetId = sheet?.properties?.sheetId ?? 0;
 
     const requests: any[] = [];
@@ -146,7 +138,8 @@ export class GoogleSheetsTimesheetGenerator implements ITimesheetGenerator {
             verticalAlignment: 'MIDDLE',
           },
         },
-        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment)',
+        fields:
+          'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment)',
       },
     });
 
@@ -301,9 +294,9 @@ export class GoogleSheetsTimesheetGenerator implements ITimesheetGenerator {
       return { red: 0, green: 0, blue: 0 };
     }
     return {
-      red: parseInt(result[1], 16) / 255,
-      green: parseInt(result[2], 16) / 255,
-      blue: parseInt(result[3], 16) / 255,
+      red: Number.parseInt(result[1], 16) / 255,
+      green: Number.parseInt(result[2], 16) / 255,
+      blue: Number.parseInt(result[3], 16) / 255,
     };
   }
 }
