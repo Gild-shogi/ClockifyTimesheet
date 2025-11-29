@@ -24,6 +24,7 @@ const createMockConfigService = (timezone: string): IConfigurationService => ({
     dateGroupBorder: { style: 'thin' as const, color: '' },
   }),
   getOutputFormat: () => 'excel',
+  getGoogleSheetsConfig: () => undefined,
 });
 
 // プライベートメソッドにアクセスするためのヘルパー

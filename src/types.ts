@@ -69,13 +69,22 @@ export interface ExcelConfig {
   showDescription?: boolean;
 }
 
+export interface GoogleSheetsConfig {
+  /** スプレッドシートID（URLの /d/ と /edit の間の部分） */
+  spreadsheetId: string;
+  /** サービスアカウント認証情報JSONファイルのパス */
+  credentialsPath: string;
+}
+
 export interface AppConfig {
   /** タイムゾーン（例: 'Asia/Tokyo'） */
   timezone: string;
   /** Excel出力設定 */
   excel: ExcelConfig;
-  /** 出力形式: 'excel' | 'csv' */
-  outputFormat?: 'excel' | 'csv';
+  /** 出力形式: 'excel' | 'csv' | 'googleSheets' */
+  outputFormat?: 'excel' | 'csv' | 'googleSheets';
+  /** Google Sheets設定（outputFormat: 'googleSheets' の場合に必要） */
+  googleSheets?: GoogleSheetsConfig;
 }
 
 // 勤務表テーブルの共通データ構造

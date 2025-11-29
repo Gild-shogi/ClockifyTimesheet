@@ -1,4 +1,4 @@
-import { AppConfig, ExcelConfig, BorderStyle } from './types';
+import { AppConfig, ExcelConfig, BorderStyle, GoogleSheetsConfig } from './types';
 
 // 後方互換性のための型エイリアス
 export type ExcelSettings = ExcelConfig & {
@@ -7,11 +7,13 @@ export type ExcelSettings = ExcelConfig & {
     color: string;
   };
 };
-export type OutputFormat = 'excel' | 'csv';
+
+export type OutputFormat = 'excel' | 'csv' | 'googleSheets';
 
 export type AppSettings = AppConfig & {
   excel: ExcelSettings;
   outputFormat: OutputFormat;
+  googleSheets?: GoogleSheetsConfig;
 };
 
 export const defaultExcelSettings: ExcelSettings = {
@@ -56,6 +58,7 @@ export function loadAppSettings(): AppSettings {
         showDescription: config.excel.showDescription ?? false,
       },
       outputFormat: config.outputFormat ?? 'excel',
+      googleSheets: config.googleSheets,
     };
   } catch {
     // 設定ファイルがない場合はデフォルト設定を使用

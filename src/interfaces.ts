@@ -33,7 +33,11 @@ export interface IConfigurationService {
     };
     showDescription?: boolean;
   };
-  getOutputFormat(): 'excel' | 'csv';
+  getOutputFormat(): 'excel' | 'csv' | 'googleSheets';
+  getGoogleSheetsConfig(): {
+    spreadsheetId: string;
+    credentialsPath: string;
+  } | undefined;
 }
 
 export interface ITimesheetService {

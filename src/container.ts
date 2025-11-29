@@ -3,6 +3,7 @@ import { ClockifyTimeTrackingClient } from './services/clockifyTimeTrackingClien
 import { TimeEntryDataProcessor } from './services/dataProcessor';
 import { ExcelTimesheetGenerator } from './services/excelTimesheetGenerator';
 import { CsvTimesheetGenerator } from './services/csvTimesheetGenerator';
+import { GoogleSheetsTimesheetGenerator } from './services/googleSheetsTimesheetGenerator';
 import { TimesheetService } from './services/timesheetService';
 import {
   IConfigurationService,
@@ -41,10 +42,17 @@ export class Container {
     );
   }
 
-  private createTimesheetGenerator(format: 'excel' | 'csv'): ITimesheetGenerator {
+  private createTimesheetGenerator(format: 'excel' | 'csv' | 'googleSheets'): ITimesheetGenerator {
     switch (format) {
       case 'csv':
         return new CsvTimesheetGenerator(this.configurationService);
+      case 'googleSheets': {
+        const sheetsConfig = this.configurationService.getGoogleSheetsConfig();
+        if (!sheetsConfig) {
+          throw new Error('Google Sheets設定が見つかりません。clockify.config.tsにgoogleSheets設定を追加してください。');
+        }
+        return new GoogleSheetsTimesheetGenerator(this.configurationService, sheetsConfig);
+      }
       case 'excel':
       default:
         return new ExcelTimesheetGenerator(this.configurationService);
