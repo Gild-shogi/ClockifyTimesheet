@@ -8,6 +8,23 @@ import { AppConfig } from './src/types';
  */
 const config: AppConfig = {
   // ========================================
+  // 出力形式
+  // ========================================
+  // 'excel' | 'csv' | 'googleSheets'
+  outputFormat: 'excel',
+
+  // ========================================
+  // Google Sheets設定（outputFormat: 'googleSheets' の場合に必要）
+  // ========================================
+  // googleSheets: {
+  // スプレッドシートID（URLの /d/ と /edit の間の部分）
+  // 例: https://docs.google.com/spreadsheets/d/XXXXXX/edit → XXXXXXがID
+  // spreadsheetId: 'xxxxxxxxxxxxxxxxxxxxxxxxx',
+  // サービスアカウント認証情報JSONファイルのパス
+  //   credentialsPath: './credentials.json',
+  // },
+
+  // ========================================
   // タイムゾーン設定
   // ========================================
   // 勤務時間の計算に使用するタイムゾーン

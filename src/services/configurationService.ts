@@ -14,7 +14,9 @@ export class ConfigurationService implements IConfigurationService {
     const userId = process.env.CLOCKIFY_USER_ID;
 
     if (!apiKey || !workspaceId || !userId) {
-      throw new Error('Clockify configuration is incomplete. Please set CLOCKIFY_API_KEY, CLOCKIFY_WORKSPACE_ID, and CLOCKIFY_USER_ID environment variables.');
+      throw new Error(
+        'Clockify configuration is incomplete. Please set CLOCKIFY_API_KEY, CLOCKIFY_WORKSPACE_ID, and CLOCKIFY_USER_ID environment variables.'
+      );
     }
 
     return {
@@ -26,5 +28,13 @@ export class ConfigurationService implements IConfigurationService {
 
   getExcelSettings() {
     return this.appSettings.excel;
+  }
+
+  getOutputFormat(): 'excel' | 'csv' | 'googleSheets' {
+    return this.appSettings.outputFormat;
+  }
+
+  getGoogleSheetsConfig() {
+    return this.appSettings.googleSheets;
   }
 }

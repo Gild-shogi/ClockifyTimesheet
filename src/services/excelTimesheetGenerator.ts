@@ -1,85 +1,71 @@
 import * as ExcelJS from 'exceljs';
-import { ITimesheetGenerator, IConfigurationService } from '../interfaces';
-import { WorkDay } from '../types';
+import { IConfigurationService, ITimesheetGenerator } from '../interfaces';
+import { TimesheetRow, WorkDay } from '../types';
+import { TimesheetTableBuilder } from './timesheetTableBuilder';
 
 export class ExcelTimesheetGenerator implements ITimesheetGenerator {
+  private tableBuilder = new TimesheetTableBuilder();
+
   constructor(private configService: IConfigurationService) {}
 
   async generateTimesheet(workDays: WorkDay[], year: number, month: number): Promise<string> {
     const settings = this.configService.getExcelSettings();
     const showDescription = settings.showDescription ?? false;
+
+    // 共通のテーブルデータを生成
+    const table = this.tableBuilder.build(workDays, year, month, {
+      showDescription,
+    });
+
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(`${year}年${month}月勤務表`);
 
+    const colCount = table.headers.length;
+
     // ヘッダー行を作成
-    const headers = [
-      '日付',
-      '曜日',
-      'プロジェクト',
-      ...(showDescription ? ['作業内容'] : []),
-      '出勤時刻',
-      '退勤時刻',
-      '労働時間',
-      '労働時間(h)',
-    ];
-    const colCount = headers.length;
-    worksheet.addRow(headers);
+    worksheet.addRow(table.headers);
 
-    let totalMonthlyHours = 0;
-    let currentRow = 2; // ヘッダーの次の行から開始
-    const dateGroupRanges: { start: number; end: number; date: string }[] = [];
+    // 日付グループの範囲を追跡（スタイリング用）
+    const dateGroupRanges: { start: number; end: number }[] = [];
+    let currentRow = 2;
+    let currentGroupIndex = -1;
+    let groupStart = currentRow;
 
-    // 出勤がある日だけ処理
-    workDays.forEach((workDay) => {
-      if (workDay.sessions.length === 0) return;
+    // データ行を追加
+    for (const row of table.rows) {
+      if (row.isTotal) {
+        // 合計行
+        const excelRow = worksheet.getRow(currentRow);
+        const values = this.tableBuilder.rowToArray(row, { showDescription });
+        values.forEach((v, i) => {
+          excelRow.getCell(i + 1).value = v;
+        });
+      } else {
+        // 通常行
+        const excelRow = worksheet.getRow(currentRow);
+        const values = this.tableBuilder.rowToArray(row, { showDescription });
+        values.forEach((v, i) => {
+          excelRow.getCell(i + 1).value = v;
+        });
 
-      const dateGroupStart = currentRow;
-
-      // 同じ日の複数セッションを処理
-      workDay.sessions.forEach((session, index) => {
-        const row = worksheet.getRow(currentRow);
-
-        // 最初のセッションの場合は日付と曜日を表示
-        if (index === 0) {
-          const [, m, d] = session.date.split('-');
-          row.getCell(1).value = `${m}/${d}`;
-          row.getCell(2).value = workDay.dayOfWeek;
-        } else {
-          // 2行目以降は日付と曜日は空白
-          row.getCell(1).value = '';
-          row.getCell(2).value = '';
+        // 日付グループの追跡
+        if (row.dateGroupIndex !== currentGroupIndex) {
+          if (currentGroupIndex >= 0) {
+            dateGroupRanges.push({ start: groupStart, end: currentRow - 1 });
+          }
+          currentGroupIndex = row.dateGroupIndex!;
+          groupStart = currentRow;
         }
+      }
+      currentRow++;
+    }
 
-        // 列番号はshowDescriptionによって変わる
-        let col = 3;
-        row.getCell(col++).value = session.projectName;
-        if (showDescription) {
-          row.getCell(col++).value = session.description || '';
-        }
-        row.getCell(col++).value = session.startTime;
-        row.getCell(col++).value = session.endTime;
-        row.getCell(col++).value = this.formatWorkHoursAsTime(session.workHours);
-        row.getCell(col++).value = session.workHours.toFixed(2);
+    // 最後のグループを追加
+    if (currentGroupIndex >= 0) {
+      dateGroupRanges.push({ start: groupStart, end: currentRow - 2 }); // -2 because currentRow was incremented and we don't want to include total row
+    }
 
-        totalMonthlyHours += session.workHours;
-        currentRow++;
-      });
-
-      // 日付グループの範囲を記録
-      dateGroupRanges.push({
-        start: dateGroupStart,
-        end: currentRow - 1,
-        date: workDay.date,
-      });
-    });
-
-    // 合計行を追加
-    const totalRow = worksheet.getRow(currentRow);
-    totalRow.getCell(1).value = '合計';
-    totalRow.getCell(colCount - 1).value = this.formatWorkHoursAsTime(totalMonthlyHours);
-    totalRow.getCell(colCount).value = totalMonthlyHours.toFixed(2);
-
-    const lastRow = currentRow;
+    const lastRow = currentRow - 1;
 
     // スタイリング適用
     this.applyStyles(worksheet, settings, lastRow, dateGroupRanges, colCount, showDescription);
@@ -89,8 +75,8 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
     await workbook.xlsx.writeFile(filename);
 
     console.log(`勤務表を生成しました: ${filename}`);
-    console.log(`月合計勤務時間: ${totalMonthlyHours.toFixed(2)}時間`);
-    console.log(`出勤日数: ${workDays.length}日`);
+    console.log(`月合計勤務時間: ${table.totalHours.toFixed(2)}時間`);
+    console.log(`出勤日数: ${table.workDayCount}日`);
 
     return filename;
   }
@@ -99,7 +85,7 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
     worksheet: ExcelJS.Worksheet,
     settings: ReturnType<IConfigurationService['getExcelSettings']>,
     lastRow: number,
-    dateGroupRanges: { start: number; end: number; date: string }[],
+    dateGroupRanges: { start: number; end: number }[],
     colCount: number,
     showDescription: boolean
   ): void {
@@ -128,7 +114,7 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
       }
     }
 
-    // ヘッダー行のスタイル（表の範囲のみ）
+    // ヘッダー行のスタイル
     for (let c = 1; c <= colCount; c++) {
       const headerCell = worksheet.getCell(1, c);
       headerCell.font = {
@@ -225,13 +211,5 @@ export class ExcelTimesheetGenerator implements ITimesheetGenerator {
         right: { style: settings.borderStyle, color: { argb: '000000' } },
       };
     }
-  }
-
-  private formatWorkHoursAsTime(hours: number): string {
-    const totalMinutes = Math.round(hours * 60);
-    const h = Math.floor(totalMinutes / 60);
-    const min = totalMinutes % 60;
-
-    return `${h}:${min.toString().padStart(2, '0')}`;
   }
 }

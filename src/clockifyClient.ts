@@ -1,12 +1,6 @@
-import axios from "axios";
-import {
-  ClockifyConfig,
-  Project,
-  TimeEntry,
-  WorkDay,
-  WorkSession,
-} from "./types";
-import { loadAppSettings } from "./settings";
+import axios from 'axios';
+import { loadAppSettings } from './settings';
+import { ClockifyConfig, Project, TimeEntry, WorkDay, WorkSession } from './types';
 
 export class ClockifyClient {
   private config: ClockifyConfig;
@@ -16,7 +10,7 @@ export class ClockifyClient {
       apiKey,
       workspaceId,
       userId,
-      baseUrl: "https://api.clockify.me/api/v1",
+      baseUrl: 'https://api.clockify.me/api/v1',
     };
   }
 
@@ -24,8 +18,8 @@ export class ClockifyClient {
     try {
       const response = await axios.get(`${this.config.baseUrl}${endpoint}`, {
         headers: {
-          "X-Api-Key": this.config.apiKey,
-          "Content-Type": "application/json",
+          'X-Api-Key': this.config.apiKey,
+          'Content-Type': 'application/json',
         },
         params,
       });
@@ -35,15 +29,12 @@ export class ClockifyClient {
     }
   }
 
-  async getTimeEntries(
-    startDate: string,
-    endDate: string
-  ): Promise<TimeEntry[]> {
+  async getTimeEntries(startDate: string, endDate: string): Promise<TimeEntry[]> {
     const endpoint = `/workspaces/${this.config.workspaceId}/user/${this.config.userId}/time-entries`;
     const params = {
       start: startDate,
       end: endDate,
-      "page-size": 5000,
+      'page-size': 5000,
     };
 
     return await this.makeRequest(endpoint, params);
@@ -60,28 +51,25 @@ export class ClockifyClient {
   }
 
   static formatDuration(duration: string): number {
-    if (!duration || duration === "PT0S") return 0;
+    if (!duration || duration === 'PT0S') return 0;
 
     const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
     if (!match) return 0;
 
-    const hours = parseInt(match[1] || "0");
-    const minutes = parseInt(match[2] || "0");
-    const seconds = parseInt(match[3] || "0");
+    const hours = Number.parseInt(match[1] || '0');
+    const minutes = Number.parseInt(match[2] || '0');
+    const seconds = Number.parseInt(match[3] || '0');
 
     return hours + minutes / 60 + seconds / 3600;
   }
 
-  static processTimeEntries(
-    timeEntries: TimeEntry[],
-    projects: Map<string, Project>
-  ): WorkDay[] {
+  static processTimeEntries(timeEntries: TimeEntry[], projects: Map<string, Project>): WorkDay[] {
     const settings = loadAppSettings();
     const workDayMap = new Map<string, WorkDay>();
 
     timeEntries.forEach((entry) => {
       const project = projects.get(entry.projectId);
-      const projectName = project?.name || "プロジェクト不明";
+      const projectName = project?.name || 'プロジェクト不明';
 
       // 日付跨ぎ対応：開始時刻と終了時刻を処理
       const sessions = ClockifyClient.splitSessionsByDate(entry, projectName, settings.timezone);
@@ -96,7 +84,7 @@ export class ClockifyClient {
           });
         }
 
-        workDayMap.get(session.date)!.sessions.push(session);
+        workDayMap.get(session.date)?.sessions.push(session);
       });
     });
 
@@ -110,9 +98,7 @@ export class ClockifyClient {
     });
 
     // 日付順にソートして返す
-    return Array.from(workDayMap.values()).sort((a, b) =>
-      a.date.localeCompare(b.date)
-    );
+    return Array.from(workDayMap.values()).sort((a, b) => a.date.localeCompare(b.date));
   }
 
   private static splitSessionsByDate(
@@ -134,8 +120,7 @@ export class ClockifyClient {
           date: startDateStr,
           startTime: ClockifyClient.formatTime(startDate),
           endTime: ClockifyClient.formatTime(endDate),
-          workHours:
-            (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60),
+          workHours: (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60),
           projectName,
         },
       ];
@@ -151,9 +136,8 @@ export class ClockifyClient {
     sessions.push({
       date: startDateStr,
       startTime: ClockifyClient.formatTime(startDate),
-      endTime: "24:00",
-      workHours:
-        (nextDayStart.getTime() - startDate.getTime()) / (1000 * 60 * 60),
+      endTime: '24:00',
+      workHours: (nextDayStart.getTime() - startDate.getTime()) / (1000 * 60 * 60),
       projectName,
     });
 
@@ -163,7 +147,7 @@ export class ClockifyClient {
 
     sessions.push({
       date: endDateStr,
-      startTime: "0:00",
+      startTime: '0:00',
       endTime: ClockifyClient.formatTime(endDate),
       workHours: (endDate.getTime() - endDayStart.getTime()) / (1000 * 60 * 60),
       projectName,
@@ -173,26 +157,26 @@ export class ClockifyClient {
   }
 
   private static formatTime(date: Date): string {
-    return `${date.getHours().toString().padStart(2, "0")}:${date
+    return `${date.getHours().toString().padStart(2, '0')}:${date
       .getMinutes()
       .toString()
-      .padStart(2, "0")}`;
+      .padStart(2, '0')}`;
   }
 
   private static getDayOfWeek(date: Date): string {
-    const days = ["日", "月", "火", "水", "木", "金", "土"];
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
     return days[date.getDay()];
   }
 
   private static parseTime(timeStr: string): number {
-    const [hours, minutes] = timeStr.split(":").map(Number);
+    const [hours, minutes] = timeStr.split(':').map(Number);
     return hours * 60 + minutes;
   }
 
   private static convertToTimezone(utcTimeString: string, timezone: string): Date {
     const utcDate = new Date(utcTimeString);
     // JavaScriptのDateオブジェクトを使ってタイムゾーン変換
-    const timeInTimezone = new Date(utcDate.toLocaleString("en-US", { timeZone: timezone }));
+    const timeInTimezone = new Date(utcDate.toLocaleString('en-US', { timeZone: timezone }));
     return timeInTimezone;
   }
 

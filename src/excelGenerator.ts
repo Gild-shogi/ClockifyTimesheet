@@ -1,6 +1,6 @@
-import * as ExcelJS from "exceljs";
-import { ExcelSettings, loadExcelSettings } from "./settings";
-import { WorkDay } from "./types";
+import * as ExcelJS from 'exceljs';
+import { ExcelSettings, loadExcelSettings } from './settings';
+import { WorkDay } from './types';
 
 export class ExcelGenerator {
   static async generateTimesheetExcel(
@@ -14,13 +14,13 @@ export class ExcelGenerator {
 
     // ヘッダー行を作成
     const headers = [
-      "日付",
-      "曜日",
-      "プロジェクト",
-      "出勤時刻",
-      "退勤時刻",
-      "労働時間",
-      "労働時間(h)",
+      '日付',
+      '曜日',
+      'プロジェクト',
+      '出勤時刻',
+      '退勤時刻',
+      '労働時間',
+      '労働時間(h)',
     ];
     worksheet.addRow(headers);
 
@@ -40,21 +40,19 @@ export class ExcelGenerator {
 
         // 最初のセッションの場合は日付と曜日を表示
         if (index === 0) {
-          const [, month, day] = session.date.split("-");
+          const [, month, day] = session.date.split('-');
           row.getCell(1).value = `${month}/${day}`;
           row.getCell(2).value = workDay.dayOfWeek;
         } else {
           // 2行目以降は日付と曜日は空白
-          row.getCell(1).value = "";
-          row.getCell(2).value = "";
+          row.getCell(1).value = '';
+          row.getCell(2).value = '';
         }
 
         row.getCell(3).value = session.projectName;
         row.getCell(4).value = session.startTime;
         row.getCell(5).value = session.endTime;
-        row.getCell(6).value = ExcelGenerator.formatWorkHoursAsTime(
-          session.workHours
-        );
+        row.getCell(6).value = ExcelGenerator.formatWorkHoursAsTime(session.workHours);
         row.getCell(7).value = session.workHours.toFixed(2);
 
         totalMonthlyHours += session.workHours;
@@ -71,9 +69,8 @@ export class ExcelGenerator {
 
     // 合計行を追加
     const totalRow = worksheet.getRow(currentRow);
-    totalRow.getCell(1).value = "合計";
-    totalRow.getCell(6).value =
-      ExcelGenerator.formatWorkHoursAsTime(totalMonthlyHours);
+    totalRow.getCell(1).value = '合計';
+    totalRow.getCell(6).value = ExcelGenerator.formatWorkHoursAsTime(totalMonthlyHours);
     totalRow.getCell(7).value = totalMonthlyHours.toFixed(2);
 
     const lastRow = currentRow;
@@ -115,7 +112,7 @@ export class ExcelGenerator {
           name: settings.fontName,
           size: settings.fontSize,
         };
-        cell.alignment = { horizontal: "center", vertical: "middle" };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
       }
     }
 
@@ -126,11 +123,11 @@ export class ExcelGenerator {
         name: settings.fontName,
         size: settings.fontSize,
         bold: true,
-        color: { argb: "FFFFFF" },
+        color: { argb: 'FFFFFF' },
       };
       headerCell.fill = {
-        type: "pattern",
-        pattern: "solid",
+        type: 'pattern',
+        pattern: 'solid',
         fgColor: { argb: settings.headerColor },
       };
     }
@@ -154,18 +151,18 @@ export class ExcelGenerator {
           // 交互背景色
           if (isAlternate && settings.alternateRowColor) {
             cell.fill = {
-              type: "pattern",
-              pattern: "solid",
+              type: 'pattern',
+              pattern: 'solid',
               fgColor: { argb: settings.alternateRowColor },
             };
           }
 
           // 基本罫線
           cell.border = {
-            top: { style: settings.borderStyle, color: { argb: "000000" } },
-            left: { style: settings.borderStyle, color: { argb: "000000" } },
-            bottom: { style: settings.borderStyle, color: { argb: "000000" } },
-            right: { style: settings.borderStyle, color: { argb: "000000" } },
+            top: { style: settings.borderStyle, color: { argb: '000000' } },
+            left: { style: settings.borderStyle, color: { argb: '000000' } },
+            bottom: { style: settings.borderStyle, color: { argb: '000000' } },
+            right: { style: settings.borderStyle, color: { argb: '000000' } },
           };
 
           // 日付グループ境界線（太い線）
@@ -195,12 +192,12 @@ export class ExcelGenerator {
           style: settings.dateGroupBorder.style,
           color: { argb: settings.dateGroupBorder.color },
         },
-        left: { style: settings.borderStyle, color: { argb: "000000" } },
+        left: { style: settings.borderStyle, color: { argb: '000000' } },
         bottom: {
           style: settings.dateGroupBorder.style,
           color: { argb: settings.dateGroupBorder.color },
         },
-        right: { style: settings.borderStyle, color: { argb: "000000" } },
+        right: { style: settings.borderStyle, color: { argb: '000000' } },
       };
 
       totalCell.border = {
@@ -208,12 +205,12 @@ export class ExcelGenerator {
           style: settings.dateGroupBorder.style,
           color: { argb: settings.dateGroupBorder.color },
         },
-        left: { style: settings.borderStyle, color: { argb: "000000" } },
+        left: { style: settings.borderStyle, color: { argb: '000000' } },
         bottom: {
           style: settings.dateGroupBorder.style,
           color: { argb: settings.dateGroupBorder.color },
         },
-        right: { style: settings.borderStyle, color: { argb: "000000" } },
+        right: { style: settings.borderStyle, color: { argb: '000000' } },
       };
     }
   }
@@ -223,6 +220,6 @@ export class ExcelGenerator {
     const h = Math.floor(totalMinutes / 60);
     const min = totalMinutes % 60;
 
-    return `${h}:${min.toString().padStart(2, "0")}`;
+    return `${h}:${min.toString().padStart(2, '0')}`;
   }
 }

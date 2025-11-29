@@ -1,17 +1,23 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "files": {
-    "include": ["*.ts", "*.js", "*.json"]
+    "include": ["*.ts", "*.js", "*.json"],
+    "ignore": ["dist/**", "node_modules/**"]
   },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
       "style": {
-        "useImportType": "off"
+        "useImportType": "off",
+        "noNonNullAssertion": "warn"
       },
       "suspicious": {
         "noExplicitAny": "warn"
+      },
+      "complexity": {
+        "noForEach": "off",
+        "noStaticOnlyClass": "off"
       }
     }
   },

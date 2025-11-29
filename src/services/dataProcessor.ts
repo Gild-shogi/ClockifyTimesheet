@@ -1,5 +1,5 @@
-import { IDataProcessor, IConfigurationService } from '../interfaces';
-import { TimeEntry, Project, WorkDay, WorkSession } from '../types';
+import { IConfigurationService, IDataProcessor } from '../interfaces';
+import { Project, TimeEntry, WorkDay, WorkSession } from '../types';
 
 export class TimeEntryDataProcessor implements IDataProcessor {
   constructor(private configService: IConfigurationService) {}
@@ -23,7 +23,7 @@ export class TimeEntryDataProcessor implements IDataProcessor {
           });
         }
 
-        workDayMap.get(session.date)!.sessions.push(session);
+        workDayMap.get(session.date)?.sessions.push(session);
       });
     });
 

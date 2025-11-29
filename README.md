@@ -1,11 +1,11 @@
 # Clockify勤務表自動生成ツール
 
-ClockifyのAPIを使用して月次勤務表を自動生成するTypeScriptアプリケーションです。時間エントリを取得し、見やすいExcel形式の勤務表を作成します。
+ClockifyのAPIを使用して月次勤務表を自動生成するTypeScriptアプリケーションです。時間エントリを取得し、Excel・CSV・Google Sheets形式の勤務表を作成します。
 
 ## 🌟 主な機能
 
 - **Clockify連携**: APIを使用した時間エントリの自動取得
-- **Excel生成**: カスタマイズ可能な月次勤務表の作成
+- **複数出力形式**: Excel / CSV / Google Sheets に対応
 - **日付跨ぎ対応**: 夜勤など日付をまたぐ勤務の自動分割
 - **プロジェクト管理**: プロジェクト別の勤務時間表示
 - **時間形式**: h:min形式と小数点形式の両方を表示
@@ -83,7 +83,7 @@ pnpm generate
 
 ## 🎨 カスタマイズオプション
 
-タイムゾーンやExcelの外観は `clockify.config.ts` で設定します。
+タイムゾーンや出力形式、Excelの外観は `clockify.config.ts` で設定します。
 TypeScriptファイルなのでコメントで説明を書けて、IDEの補完も効きます。
 
 ```typescript
@@ -91,8 +91,10 @@ TypeScriptファイルなのでコメントで説明を書けて、IDEの補完�
 import { AppConfig } from './src/types';
 
 const config: AppConfig = {
+  // 出力形式: 'excel' | 'csv' | 'googleSheets'
+  outputFormat: 'excel',
+
   // タイムゾーン設定
-  // 例: 'Asia/Tokyo', 'America/New_York', 'Europe/London'
   timezone: 'Asia/Tokyo',
 
   excel: {
@@ -108,6 +110,9 @@ const config: AppConfig = {
     // フォント設定
     fontSize: 11,
     fontName: 'Meiryo UI',
+
+    // 作業内容（Description）列を表示するか
+    showDescription: false,
   },
 };
 
@@ -116,27 +121,66 @@ export default config;
 
 設定を変更したら `pnpm build` で再ビルドしてください。
 
+### Google Sheets出力を使う場合
+
+Google Sheetsに直接出力する場合は、以下の追加設定が必要です。
+
+#### 1. Google Cloud設定
+
+1. [Google Cloud Console](https://console.cloud.google.com/) でプロジェクトを作成
+2. 「APIとサービス」→「ライブラリ」→ **Google Sheets API** を有効化
+3. 「IAM & 管理」→「サービスアカウント」→ サービスアカウントを作成
+4. 作成したサービスアカウントの「鍵」タブ →「鍵を追加」→「新しい鍵を作成」→ JSON
+5. ダウンロードしたJSONファイルを `credentials.json` としてプロジェクトルートに配置
+
+#### 2. スプレッドシートの共有設定
+
+サービスアカウントのメールアドレス（`credentials.json` 内の `client_email`）を、出力先スプレッドシートに**編集者**として共有してください。
+
+#### 3. 設定ファイル
+
+```typescript
+// clockify.config.ts
+const config: AppConfig = {
+  outputFormat: 'googleSheets',
+
+  googleSheets: {
+    // スプレッドシートID（URLの /d/ と /edit の間の部分）
+    // 例: https://docs.google.com/spreadsheets/d/XXXXX/edit → XXXXXがID
+    spreadsheetId: 'your-spreadsheet-id',
+    // 認証情報ファイルのパス
+    credentialsPath: './credentials.json',
+  },
+
+  // ... 他の設定
+};
+```
+
 ## 🛠️ 開発者向け
 
 ### プロジェクト構造
 
 ```
-clockify.config.ts             # 設定ファイル（タイムゾーン、Excel外観など）
+clockify.config.ts             # 設定ファイル（タイムゾーン、出力形式、外観など）
+credentials.json               # Google Sheets認証情報（※gitignore対象）
 src/
 ├── interfaces.ts              # インターフェース定義
-├── container.ts              # 依存性注入コンテナ
-├── services/                 # ビジネスロジック層
-│   ├── configurationService.ts    # 設定管理
-│   ├── clockifyTimeTrackingClient.ts  # Clockify API クライアント
-│   ├── dataProcessor.ts           # データ処理
-│   ├── excelTimesheetGenerator.ts # Excel生成
-│   └── timesheetService.ts        # 勤務表サービス
-├── tools/                    # ユーティリティツール
-│   ├── listWorkspaces.ts          # ワークスペース一覧
-│   └── getUserInfo.ts             # ユーザー情報取得
-├── types.ts                  # 型定義
-├── settings.ts               # 設定管理
-└── index.ts                  # エントリーポイント
+├── container.ts               # 依存性注入コンテナ
+├── services/                  # ビジネスロジック層
+│   ├── configurationService.ts         # 設定管理
+│   ├── clockifyTimeTrackingClient.ts   # Clockify API クライアント
+│   ├── dataProcessor.ts                # データ処理
+│   ├── timesheetTableBuilder.ts        # 共通テーブル生成ロジック
+│   ├── excelTimesheetGenerator.ts      # Excel生成
+│   ├── csvTimesheetGenerator.ts        # CSV生成
+│   ├── googleSheetsTimesheetGenerator.ts # Google Sheets生成
+│   └── timesheetService.ts             # 勤務表サービス
+├── tools/                     # ユーティリティツール
+│   ├── listWorkspaces.ts           # ワークスペース一覧
+│   └── getUserInfo.ts              # ユーザー情報取得
+├── types.ts                   # 型定義
+├── settings.ts                # 設定管理
+└── index.ts                   # エントリーポイント
 ```
 
 

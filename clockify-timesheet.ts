@@ -1,6 +1,6 @@
 import axios from 'axios';
-import * as ExcelJS from 'exceljs';
 import * as dotenv from 'dotenv';
+import * as ExcelJS from 'exceljs';
 
 dotenv.config();
 
@@ -75,9 +75,9 @@ class ClockifyTimesheetGenerator {
     const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
     if (!match) return 0;
 
-    const hours = parseInt(match[1] || '0');
-    const minutes = parseInt(match[2] || '0');
-    const seconds = parseInt(match[3] || '0');
+    const hours = Number.parseInt(match[1] || '0');
+    const minutes = Number.parseInt(match[2] || '0');
+    const seconds = Number.parseInt(match[3] || '0');
 
     return hours + minutes / 60 + seconds / 3600;
   }
@@ -106,8 +106,8 @@ class ClockifyTimesheetGenerator {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0);
 
-    const startDateStr = startDate.toISOString().split('T')[0] + 'T00:00:00Z';
-    const endDateStr = endDate.toISOString().split('T')[0] + 'T23:59:59Z';
+    const startDateStr = `${startDate.toISOString().split('T')[0]}T00:00:00Z`;
+    const endDateStr = `${endDate.toISOString().split('T')[0]}T23:59:59Z`;
 
     console.log(`${year}年${month}月の勤務データを取得中...`);
     const timeEntries = await this.getTimeEntries(startDateStr, endDateStr);

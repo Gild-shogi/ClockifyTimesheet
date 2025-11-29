@@ -9,8 +9,8 @@
  * ホストOSのタイムゾーンに関係なく、同じ結果が得られることを確認する
  */
 
-import { TimesheetService } from '../services/timesheetService';
 import { IConfigurationService } from '../interfaces';
+import { TimesheetService } from '../services/timesheetService';
 
 // テスト用のモックConfigurationService
 const createMockConfigService = (timezone: string): IConfigurationService => ({
@@ -23,18 +23,15 @@ const createMockConfigService = (timezone: string): IConfigurationService => ({
     fontName: '',
     dateGroupBorder: { style: 'thin' as const, color: '' },
   }),
+  getOutputFormat: () => 'excel',
+  getGoogleSheetsConfig: () => undefined,
 });
 
 // プライベートメソッドにアクセスするためのヘルパー
 function getConvertToUTC(timezone: string) {
   const mockConfigService = createMockConfigService(timezone);
-  const service = new TimesheetService(
-    null as any,
-    null as any,
-    null as any,
-    mockConfigService
-  );
-  return (service as any)['convertToUTC'].bind(service);
+  const service = new TimesheetService(null as any, null as any, null as any, mockConfigService);
+  return (service as any).convertToUTC.bind(service);
 }
 
 interface TestCase {
