@@ -7,8 +7,11 @@ export type ExcelSettings = ExcelConfig & {
     color: string;
   };
 };
+export type OutputFormat = 'excel' | 'csv';
+
 export type AppSettings = AppConfig & {
   excel: ExcelSettings;
+  outputFormat: OutputFormat;
 };
 
 export const defaultExcelSettings: ExcelSettings = {
@@ -26,6 +29,7 @@ export const defaultExcelSettings: ExcelSettings = {
 export const defaultAppSettings: AppSettings = {
   timezone: 'Asia/Tokyo',
   excel: defaultExcelSettings,
+  outputFormat: 'excel',
 };
 
 let cachedConfig: AppSettings | null = null;
@@ -51,6 +55,7 @@ export function loadAppSettings(): AppSettings {
         dateGroupBorder: config.excel.dateGroupBorder || defaultExcelSettings.dateGroupBorder,
         showDescription: config.excel.showDescription ?? false,
       },
+      outputFormat: config.outputFormat ?? 'excel',
     };
   } catch {
     // 設定ファイルがない場合はデフォルト設定を使用

@@ -27,4 +27,8 @@ export class ConfigurationService implements IConfigurationService {
   getExcelSettings() {
     return this.appSettings.excel;
   }
+
+  getOutputFormat(): 'excel' | 'csv' {
+    return this.appSettings.outputFormat;
+  }
 }

@@ -23,6 +23,7 @@ const createMockConfigService = (timezone: string): IConfigurationService => ({
     fontName: '',
     dateGroupBorder: { style: 'thin' as const, color: '' },
   }),
+  getOutputFormat: () => 'excel',
 });
 
 // プライベートメソッドにアクセスするためのヘルパー

@@ -33,6 +33,7 @@ export interface IConfigurationService {
     };
     showDescription?: boolean;
   };
+  getOutputFormat(): 'excel' | 'csv';
 }
 
 export interface ITimesheetService {
