@@ -1,23 +1,19 @@
-export interface ExcelSettings {
-  headerColor: string;
-  alternateRowColor?: string;
-  borderStyle: 'thin' | 'medium' | 'thick';
-  fontSize: number;
-  fontName: string;
+import { AppConfig, ExcelConfig, BorderStyle } from './types';
+
+// 後方互換性のための型エイリアス
+export type ExcelSettings = ExcelConfig & {
   dateGroupBorder: {
-    style: 'thin' | 'medium' | 'thick';
+    style: BorderStyle;
     color: string;
   };
-}
-
-export interface AppSettings {
-  timezone: string;
+};
+export type AppSettings = AppConfig & {
   excel: ExcelSettings;
-}
+};
 
 export const defaultExcelSettings: ExcelSettings = {
-  headerColor: '4472C4', // 青色
-  alternateRowColor: 'F2F2F2', // 薄いグレー
+  headerColor: '4472C4',
+  alternateRowColor: 'F2F2F2',
   borderStyle: 'thin',
   fontSize: 11,
   fontName: 'Meiryo UI',
@@ -32,30 +28,43 @@ export const defaultAppSettings: AppSettings = {
   excel: defaultExcelSettings,
 };
 
-export function loadAppSettings(): AppSettings {
-  const excelSettings = {
-    headerColor: process.env.EXCEL_HEADER_COLOR || defaultExcelSettings.headerColor,
-    alternateRowColor:
-      process.env.EXCEL_ALTERNATE_ROW_COLOR || defaultExcelSettings.alternateRowColor,
-    borderStyle:
-      (process.env.EXCEL_BORDER_STYLE as 'thin' | 'medium' | 'thick') ||
-      defaultExcelSettings.borderStyle,
-    fontSize: parseInt(process.env.EXCEL_FONT_SIZE || '') || defaultExcelSettings.fontSize,
-    fontName: process.env.EXCEL_FONT_NAME || defaultExcelSettings.fontName,
-    dateGroupBorder: {
-      style:
-        (process.env.EXCEL_DATE_BORDER_STYLE as 'thin' | 'medium' | 'thick') ||
-        defaultExcelSettings.dateGroupBorder.style,
-      color: process.env.EXCEL_DATE_BORDER_COLOR || defaultExcelSettings.dateGroupBorder.color,
-    },
-  };
+let cachedConfig: AppSettings | null = null;
 
-  return {
-    timezone: process.env.TIMEZONE || defaultAppSettings.timezone,
-    excel: excelSettings,
-  };
+export function loadAppSettings(): AppSettings {
+  if (cachedConfig) {
+    return cachedConfig;
+  }
+
+  try {
+    // 設定ファイルから読み込み
+    const configModule = require('../clockify.config');
+    const config: AppConfig = configModule.default || configModule;
+
+    cachedConfig = {
+      timezone: config.timezone,
+      excel: {
+        headerColor: config.excel.headerColor,
+        alternateRowColor: config.excel.alternateRowColor,
+        borderStyle: config.excel.borderStyle,
+        fontSize: config.excel.fontSize,
+        fontName: config.excel.fontName,
+        dateGroupBorder: config.excel.dateGroupBorder || defaultExcelSettings.dateGroupBorder,
+      },
+    };
+  } catch {
+    // 設定ファイルがない場合はデフォルト設定を使用
+    console.warn('clockify.config.ts が見つかりません。デフォルト設定を使用します。');
+    cachedConfig = defaultAppSettings;
+  }
+
+  return cachedConfig;
 }
 
 export function loadExcelSettings(): ExcelSettings {
   return loadAppSettings().excel;
+}
+
+/** 設定キャッシュをクリア（テスト用） */
+export function clearConfigCache(): void {
+  cachedConfig = null;
 }

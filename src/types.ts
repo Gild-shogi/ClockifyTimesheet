@@ -42,3 +42,32 @@ export interface WorkDay {
   dayOfWeek: string;
   sessions: WorkSession[];
 }
+
+// アプリケーション設定
+
+export type BorderStyle = 'thin' | 'medium' | 'thick';
+
+export interface ExcelConfig {
+  /** ヘッダー背景色（16進数、例: '4472C4'） */
+  headerColor: string;
+  /** 交互行の背景色（16進数、例: 'F2F2F2'） */
+  alternateRowColor?: string;
+  /** 罫線スタイル */
+  borderStyle: BorderStyle;
+  /** フォントサイズ */
+  fontSize: number;
+  /** フォント名 */
+  fontName: string;
+  /** 日付グループの区切り罫線 */
+  dateGroupBorder?: {
+    style: BorderStyle;
+    color: string;
+  };
+}
+
+export interface AppConfig {
+  /** タイムゾーン（例: 'Asia/Tokyo'） */
+  timezone: string;
+  /** Excel出力設定 */
+  excel: ExcelConfig;
+}

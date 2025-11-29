@@ -62,23 +62,13 @@ pnpm get-user-info your.email@example.com
 
 ### 3. 環境変数の設定
 
-`.env`ファイルを編集：
+`.env`ファイルを編集（APIキーなどの機密情報のみ）：
 
 ```env
 # Clockify API設定
 CLOCKIFY_API_KEY=your_api_key_here
 CLOCKIFY_WORKSPACE_ID=your_workspace_id_here
 CLOCKIFY_USER_ID=your_user_id_here
-
-# タイムゾーン設定
-TIMEZONE=Asia/Tokyo
-
-# Excel設定（オプション）
-EXCEL_HEADER_COLOR=4472C4
-EXCEL_ALTERNATE_ROW_COLOR=F2F2F2
-EXCEL_BORDER_STYLE=thin
-EXCEL_FONT_SIZE=11
-EXCEL_FONT_NAME=Meiryo UI
 ```
 
 ### 4. 勤務表の生成
@@ -93,29 +83,45 @@ pnpm generate
 
 ## 🎨 カスタマイズオプション
 
-### Excel外観設定
+タイムゾーンやExcelの外観は `clockify.config.ts` で設定します。
+TypeScriptファイルなのでコメントで説明を書けて、IDEの補完も効きます。
 
-| 設定項目 | 説明 | 例 |
-|---------|------|-----|
-| `EXCEL_HEADER_COLOR` | ヘッダー背景色（16進数） | `4472C4`（青）, `FF6B6B`（赤） |
-| `EXCEL_ALTERNATE_ROW_COLOR` | 交互行の背景色 | `F2F2F2`（薄グレー） |
-| `EXCEL_BORDER_STYLE` | 罫線スタイル | `thin`, `medium`, `thick` |
-| `EXCEL_FONT_SIZE` | フォントサイズ | `11`, `12`, `14` |
-| `EXCEL_FONT_NAME` | フォント名 | `Meiryo UI`, `Arial` |
+```typescript
+// clockify.config.ts
+import { AppConfig } from './src/types';
 
-### タイムゾーン設定
+const config: AppConfig = {
+  // タイムゾーン設定
+  // 例: 'Asia/Tokyo', 'America/New_York', 'Europe/London'
+  timezone: 'Asia/Tokyo',
 
-```env
-TIMEZONE=Asia/Tokyo          # 日本時間
-TIMEZONE=America/New_York    # 米国東部時間
-TIMEZONE=Europe/London       # イギリス時間
+  excel: {
+    // ヘッダー背景色（16進数、#なし）
+    headerColor: '4472C4',
+
+    // 交互行の背景色
+    alternateRowColor: 'F2F2F2',
+
+    // 罫線スタイル: 'thin' | 'medium' | 'thick'
+    borderStyle: 'thin',
+
+    // フォント設定
+    fontSize: 11,
+    fontName: 'Meiryo UI',
+  },
+};
+
+export default config;
 ```
+
+設定を変更したら `pnpm build` で再ビルドしてください。
 
 ## 🛠️ 開発者向け
 
 ### プロジェクト構造
 
 ```
+clockify.config.ts             # 設定ファイル（タイムゾーン、Excel外観など）
 src/
 ├── interfaces.ts              # インターフェース定義
 ├── container.ts              # 依存性注入コンテナ
