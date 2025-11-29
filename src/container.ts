@@ -31,7 +31,8 @@ export class Container {
     this.timesheetService = new TimesheetService(
       this.timeTrackingClient,
       this.dataProcessor,
-      this.timesheetGenerator
+      this.timesheetGenerator,
+      this.configurationService
     );
   }
 

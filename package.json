@@ -10,6 +10,8 @@
     "lint": "biome lint .",
     "format": "biome format --write .",
     "check": "biome check .",
+    "test": "ts-node src/tests/timesheetService.test.ts",
+    "test:tz": "TZ=UTC pnpm test && TZ=Asia/Tokyo pnpm test && TZ=America/New_York pnpm test",
     "list-workspaces": "ts-node src/tools/listWorkspaces.ts",
     "get-user-info": "ts-node src/tools/getUserInfo.ts"
   },

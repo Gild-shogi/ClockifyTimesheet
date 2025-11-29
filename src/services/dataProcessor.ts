@@ -16,10 +16,9 @@ export class TimeEntryDataProcessor implements IDataProcessor {
 
       sessions.forEach((session) => {
         if (!workDayMap.has(session.date)) {
-          const date = new Date(session.date);
           workDayMap.set(session.date, {
             date: session.date,
-            dayOfWeek: this.getDayOfWeek(date),
+            dayOfWeek: this.getDayOfWeekFromDateString(session.date),
             sessions: [],
           });
         }
@@ -118,9 +117,12 @@ export class TimeEntryDataProcessor implements IDataProcessor {
       .padStart(2, '0')}`;
   }
 
-  private getDayOfWeek(date: Date): string {
+  private getDayOfWeekFromDateString(dateStr: string): string {
     const days = ['日', '月', '火', '水', '木', '金', '土'];
-    return days[date.getDay()];
+    // 日付文字列を直接パースしてUTC正午で作成し、タイムゾーンの影響を回避
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+    return days[date.getUTCDay()];
   }
 
   private parseTime(timeStr: string): number {
